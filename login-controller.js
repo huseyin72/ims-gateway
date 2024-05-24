@@ -1,6 +1,8 @@
 const axios = require('axios');
 const Producer = require('./producer');
 const producer = new Producer();
+//const Consumer = require('./consumer');
+//const consumer = new Consumer();
 
 const login = async (req,res,role) =>{
     try {
@@ -132,12 +134,19 @@ exports.evaluateRegistration = async (req,res) =>{
     //body = {companyMail:mail, karar:approve}
     try {
         const message = req.body
-
+        var feedback;
         await producer.publishMessage('notApprovedCompany',message)
+        await producer.consumeMessages('registrationDecisionBack','notApprovedCompanyBack',(content)=>{
+            
+            console.log('Received message from service:', content);
+            console.log('********')
+            feedback = content
+            res.status(200).json({
+                status:'success',
+                feedback:feedback
+            });
+        })
 
-        res.status(200).json({
-            status:'success',
-        });
     } catch (error) {
         res.status(400).json({
             error:error
