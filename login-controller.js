@@ -6,12 +6,34 @@ const producer = new Producer();
 
 const login = async (req,res,role) =>{
     try {
+        if(role ==="secretariat"){
+            req.body.departmentMail = req.body.secretariatMail;
+            delete req.body.secretariatmail;
+
+        }
         const response = await axios.post(`http://localhost:3001/ims/auth-service/api/${role}/login`,req.body);
+        if(!role==='company'){
+            response.data.loggedUser[`${role}Name`] = response.data.loggedUser.firstName + ' ' + response.data.loggedUser.lastName
+        }
+       
         //console.log(response.data);
+        if(role==='company'){
+            if(response.data.loggedUser.status==='not approved'){
+                return res.status(402).json({
+                    error:'Registration not approved yet'
+                });
+            }
+        }
         res.cookie('token',response.data.token,{httpOnly:true,secure:true});
 
-        
-        res.status(200).json({
+        if(role ==="secretariat"){
+            console.log('here amk ')
+            response.data.loggedUser.secretariatMail =  response.data.loggedUser.departmentMail;
+            console.log(response.data.loggedUser.secretariatMail);
+            delete response.data.loggedUser.departmentMail;
+
+        }
+        return res.status(200).json({
             status:response.data.status,
             user:response.data.loggedUser,
             role:role,
@@ -19,7 +41,7 @@ const login = async (req,res,role) =>{
 
         })
     } catch (error) {
-            res.status(401).json({
+            return res.status(401).json({
             error:error
         });
     }
@@ -30,12 +52,16 @@ const login = async (req,res,role) =>{
 //student login
 exports.studentLogin = async(req,res) =>{
     try {
-        console.log('here');
-        const response = await axios.post('http://localhost:3001/ims/auth-service/api/login',req.body);
+        //console.log()
+        
+        
+        const response = await axios.post('http://localhost:3001/ims/auth-service/api/login',{email:req.body.studentMail,password:req.body.password});
+        response.data.loggedStudent['studentName'] = response.data.loggedStudent.firstName + ' ' + response.data.loggedStudent.lastName
+
         res.cookie('token',response.data.token,{httpOnly:true,secure:true});
         res.status(200).json({
             status:'success',
-            student:response.data.loggedStudent,
+            user:response.data.loggedStudent,
             role:'student',
             token:response.data.token
 

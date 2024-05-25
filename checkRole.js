@@ -53,6 +53,7 @@ exports.isStudent = async(req,res,next) =>{
 
 exports.isCompany = async(req,res,next) =>{ 
     try {
+        console.log('ananı sikerim gir ')
         await isFnc(req,res,next,'Company')
     } catch (error) {
         res.status(401).json({ success: 'false' });

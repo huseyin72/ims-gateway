@@ -353,7 +353,7 @@ app.put('/summerPracticeCoordinator/deleteApplication', async(req, res) => {
 
 
 // ******************Announcement *****************************
-app.get('/ims/company/get-announcement', async(req, res) => { 
+app.get('/ims/company/get-announcement',checkRole.isCompany, async(req, res) => { 
     try{
         const content = req.body;
         const msg = JSON.stringify(content);
@@ -387,7 +387,7 @@ app.get('/ims/company/announcement-list', async(req, res) => {
 });
 
 
-app.get('/ims/admin/get-announcement', async(req, res) => { 
+app.get('/ims/admin/get-announcement',checkRole.isCoordinator, async(req, res) => { 
     try{
         const content = req.body;
         const msg = JSON.stringify(content);
@@ -452,7 +452,7 @@ app.get('/ims/admin/waiting-announcement-list', async(req, res) => {
 });
 
 
-app.get('/ims/student/get-announcement', async(req, res) => { 
+app.get('/ims/student/get-announcement',checkRole.isStudent, async(req, res) => { 
     try{
         const content = req.body;
         const msg = JSON.stringify(content);
@@ -665,6 +665,38 @@ app.get('/ims/student/coordinator-announcement', async(req, res) => {
 });
 
 
+//notification
+app.get('/ims/notifications', async(req, res) => { 
+    try{
+        const content = req.body;
+        const msg = JSON.stringify(content);
+        
+        const correlationId = generateUuid();
+        emitMessageCorrelationId('notification.list', msg, correlationId);
+        const response = await waitForResponse(correlationId);
+        const parsedResponse = JSON.parse(response);
+        res.status(parsedResponse.status).send(parsedResponse.message);
+    }
+    catch(error){
+        res.status(400).send(error);
+    }
+});
+
+app.get('/ims/notification', async(req, res) => { 
+    try{
+        const content = req.body;
+        const msg = JSON.stringify(content);
+        
+        const correlationId = generateUuid();
+        emitMessageCorrelationId('notification.get', msg, correlationId);
+        const response = await waitForResponse(correlationId);
+        const parsedResponse = JSON.parse(response);
+        res.status(parsedResponse.status).send(parsedResponse.message);
+    }
+    catch(error){
+        res.status(400).send(error);
+    }
+});
 
 
 //login-register
