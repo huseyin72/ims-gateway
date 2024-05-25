@@ -1,9 +1,9 @@
 const express = require('express');
 router = express.Router();
-loginController = require('./login-controller');
-authMiddleware = require('./auth-middleware');
-checkRole = require('./checkRole');
-announcementController = require('./announcement');
+const loginController = require('./login-controller');
+const  authMiddleware = require('./auth-middleware');
+const checkRole = require('./checkRole');
+const announcementController = require('./announcement');
 
 //logout
 
@@ -38,11 +38,11 @@ router
 
 
 //coordinator approves company registration
-router
+/* router
     .route('/evaluvate-registration')
     .get(checkRole.isCoordinator,loginController.getNotApprovedList)
-    .post(checkRole.isCoordinator,loginController.evaluateRegistration)
-
+    //.post(checkRole.isCoordinator,loginController.evaluateRegistration)
+ */
 
 
 

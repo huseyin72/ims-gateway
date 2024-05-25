@@ -30,6 +30,7 @@ const login = async (req,res,role) =>{
 //student login
 exports.studentLogin = async(req,res) =>{
     try {
+        console.log('here');
         const response = await axios.post('http://localhost:3001/ims/auth-service/api/login',req.body);
         res.cookie('token',response.data.token,{httpOnly:true,secure:true});
         res.status(200).json({

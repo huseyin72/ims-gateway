@@ -42,7 +42,7 @@ class Producer {
     }
 
     await this.channel.assertExchange(process.env.RABBITEXCHANGE, 'direct');
-    const q = await this.channel.assertQueue(queue, { durable: true });
+    const q = await this.channel.assertQueue(queue, { durable: false });
     await this.channel.bindQueue(q.queue, process.env.RABBITEXCHANGE, routingKey);
 
     this.channel.consume(q.queue, (msg) => {
