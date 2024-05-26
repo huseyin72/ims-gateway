@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const amqp = require('amqplib/callback_api');
 const checkRole = require('./checkRole');
+const axios = require('axios');
 
 
 const path = "./config.env"
@@ -113,7 +114,7 @@ const router = require('./routes');
 
 
 
-app.post('/ims/evaluvate-registration',checkRole.isCoordinator, async (req,res) =>{
+app.post('/ims/evaluvate-registration', async (req,res) =>{
     console.log('buraya girdi');
     const content = req.body;
     const msg = JSON.stringify(content);
@@ -122,6 +123,23 @@ app.post('/ims/evaluvate-registration',checkRole.isCoordinator, async (req,res) 
     const response = await waitForResponse(correlationId);
     console.log(response);
     res.send(response);
+
+
+
+});
+
+app.get('/ims/evaluvate-registration', async (req,res) =>{
+    try {
+        console.log('geldim amk')
+        const response = await axios.get(`http://localhost:3001/ims/auth-service/api/company/notApprovedList`);
+        console.log(response.data);
+        return res.status(200).json({
+            response:response.data.notApprovedCompanies
+        });
+    } catch (error) {
+        res.status(400).json({error:error})
+    }
+    
 
 
 
@@ -353,7 +371,7 @@ app.put('/summerPracticeCoordinator/deleteApplication', async(req, res) => {
 
 
 // ******************Announcement *****************************
-app.get('/ims/company/get-announcement',checkRole.isCompany, async(req, res) => { 
+app.post('/ims/company/get-announcement',checkRole.isCompany, async(req, res) => { 
     try{
         const content = req.body;
         const msg = JSON.stringify(content);
@@ -371,7 +389,7 @@ app.get('/ims/company/get-announcement',checkRole.isCompany, async(req, res) => 
     }
 });
 
-app.get('/ims/company/announcement-list', async(req, res) => { 
+app.post('/ims/company/announcement-list', async(req, res) => { 
     try{
         const content = req.body;
         const msg = JSON.stringify(content);
@@ -443,7 +461,9 @@ app.get('/ims/admin/waiting-announcement-list', async(req, res) => {
         emitMessageCorrelationId('admin.waiting-announcements.list', msg, correlationId);
         const response = await waitForResponse(correlationId);
         const parsedResponse = JSON.parse(response);
+        c
         res.status(parsedResponse.status).send(parsedResponse.message);
+
     }
     catch(error){
         res.status(400).send(error);
@@ -700,7 +720,27 @@ app.get('/ims/notification', async(req, res) => {
 
 
 //login-register
+app.post('/ims/company/send-reset-link', async (req,res) =>{
+    try {
+        const response = await axios.post(`http://localhost:3001/ims/auth-service/api/company/resetPassword`,req.body);
+        res.status(200).json({message:'reset link sent to email'})
+    } catch (error) {
+        res.status(400).json({message:'bad request'})
+    }
+})
+
+app.post('/ims/company/reset/:id', async (req,res) =>{
+    try {
+        const id = req.params.id;
+        
+        const response = await axios.post(`http://localhost:3001/ims/auth-service/api/company/setNewPassword/${id}`,req.body);
+        res.status(200).json({message:'password changed'})
+    } catch (error) {
+        res.status(400).json({message:'bad request'})
+    }
+})
 app.use('/ims',router);
+
 
 
 

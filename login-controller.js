@@ -9,11 +9,21 @@ const login = async (req,res,role) =>{
         if(role ==="secretariat"){
             req.body.departmentMail = req.body.secretariatMail;
             delete req.body.secretariatmail;
+            
 
         }
         const response = await axios.post(`http://localhost:3001/ims/auth-service/api/${role}/login`,req.body);
-        if(!role==='company'){
+        console.log(response);
+        if(role==='secretariat'){
+
             response.data.loggedUser[`${role}Name`] = response.data.loggedUser.firstName + ' ' + response.data.loggedUser.lastName
+            console.log(response.data.loggedUser);
+        }
+
+        if(role==='coordinator'){
+
+            response.data.loggedUser[`${role}Name`] = response.data.loggedUser.firstName + ' ' + response.data.loggedUser.lastName
+            console.log(response.data.loggedUser);
         }
        
         //console.log(response.data);
